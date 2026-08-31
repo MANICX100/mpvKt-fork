@@ -18,11 +18,11 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "live.mehiz.mpvkt"
+    applicationId = "com.manicx100.mpvktfork"
     minSdk = 21
     targetSdk = 36
-    versionCode = 12
-    versionName = "0.1.6"
+    versionCode = 4
+    versionName = "4"
 
     vectorDrawables {
       useSupportLibrary = true

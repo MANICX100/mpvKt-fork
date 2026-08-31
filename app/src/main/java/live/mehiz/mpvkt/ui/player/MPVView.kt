@@ -16,6 +16,7 @@ import live.mehiz.mpvkt.preferences.DecoderPreferences
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.ui.player.controls.components.panels.toColorHexString
+import live.mehiz.mpvkt.util.ConfigDirs
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.reflect.KProperty
@@ -69,7 +70,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     MPVLib.setPropertyBoolean("input-default-bindings", true)
 
     MPVLib.setOptionString("tls-verify", "yes")
-    MPVLib.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
+    MPVLib.setOptionString("tls-ca-file", "${ConfigDirs.configPath(context)}/cacert.pem")
 
     // Limit demuxer cache since the defaults are too high for mobile devices
     val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 64 else 32
@@ -180,7 +181,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
   private fun setupSubtitlesOptions() {
     MPVLib.setOptionString("slang", subtitlesPreferences.preferredLanguages.get())
 
-    MPVLib.setOptionString("sub-fonts-dir", context.cacheDir.path + "/fonts/")
+    MPVLib.setOptionString("sub-fonts-dir", ConfigDirs.cachePath(context) + "/")
     MPVLib.setOptionString("sub-delay", (subtitlesPreferences.defaultSubDelay.get() / 1000.0).toString())
     MPVLib.setOptionString("sub-speed", subtitlesPreferences.defaultSubSpeed.get().toString())
     MPVLib.setOptionString(

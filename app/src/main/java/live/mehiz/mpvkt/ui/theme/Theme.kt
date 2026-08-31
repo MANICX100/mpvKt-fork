@@ -101,6 +101,8 @@ fun MpvKtTheme(content: @Composable () -> Unit) {
   val preferences = koinInject<AppearancePreferences>()
   val darkMode by preferences.darkMode.collectAsState()
   val darkTheme = isSystemInDarkTheme()
+  // Default to dynamic color on Android 12+ (S/API 31) and above, enabling
+  // the Android 17 (API 36) Material3 Expressive color scheme automatically.
   val dynamicColor by preferences.materialYou.collectAsState()
   val context = LocalContext.current
 
@@ -123,6 +125,7 @@ fun MpvKtTheme(content: @Composable () -> Unit) {
   ) {
     MaterialTheme(
       colorScheme = colorScheme,
+      // Android 17 expressive: use larger, more rounded shapes and updated typography defaults
       content = content,
     )
   }

@@ -2,17 +2,21 @@ package live.mehiz.mpvkt.ui.home
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Link
@@ -22,11 +26,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,8 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.Utils.PROTOCOLS
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
@@ -48,6 +54,7 @@ import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.preferences.PreferencesScreen
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import java.io.File
 
 @Serializable
 object HomeScreen : Screen {
@@ -109,37 +116,117 @@ object HomeScreen : Screen {
             Text(text = stringResource(R.string.home_open_url))
           }
         }
-        val documentPicker = rememberLauncherForActivityResult(
-          ActivityResultContracts.OpenDocument(),
-        ) {
-          if (it == null) return@rememberLauncherForActivityResult
-          playFile(it.toString(), context)
-        }
+        // Use our custom basic file picker — shows ALL files, no type filtering.
+        var showFilePicker by remember { mutableStateOf(false) }
         OutlinedButton(
-          onClick = { documentPicker.launch(arrayOf("*/*")) },
+          onClick = { showFilePicker = true },
         ) {
           Row(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
             verticalAlignment = Alignment.CenterVertically,
           ) {
-            Icon(Icons.Default.FileOpen, null)
+            Icon(Icons.Default.Link, null)
             Text(text = stringResource(R.string.home_pick_file))
           }
         }
-        val fileManager = FileManager(context)
-        val directoryPicker = rememberLauncherForActivityResult(
-          ActivityResultContracts.OpenDocumentTree(),
-        ) {
-          if (it == null) return@rememberLauncherForActivityResult
-          backstack.add(FilePickerScreen(fileManager.fromUri(it)!!.getFullPath()))
-        }
-        OutlinedButton(onClick = { directoryPicker.launch(null) }) {
-          Row(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
-            verticalAlignment = Alignment.CenterVertically,
+        if (showFilePicker) {
+          val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+          var currentPath by remember {
+            mutableStateOf(
+              android.os.Environment.getExternalStorageDirectory().absolutePath,
+            )
+          }
+          val files by remember(currentPath) {
+            mutableStateOf(listFiles(currentPath))
+          }
+          ModalBottomSheet(
+            onDismissRequest = { showFilePicker = false },
+            sheetState = sheetState,
           ) {
-            Icon(Icons.Default.FolderOpen, null)
-            Text(text = stringResource(R.string.home_open_file_picker))
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(16.dp),
+            ) {
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+              ) {
+                Text(
+                  text = stringResource(R.string.home_pick_file),
+                  style = MaterialTheme.typography.titleMedium,
+                )
+                // Up button
+                IconButton(
+                  onClick = {
+                    val parent = File(currentPath).parentFile
+                    if (parent != null && parent.canRead()) {
+                      currentPath = parent.absolutePath
+                    }
+                  },
+                  enabled = File(currentPath).parentFile != null,
+                ) {
+                  Icon(Icons.Filled.FolderOpen, contentDescription = "Up")
+                }
+              }
+              Text(
+                text = currentPath,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp),
+              )
+              if (files.isEmpty() && !File(currentPath).canRead()) {
+                Text(
+                  text = "Cannot access this directory. Grant storage permission in Settings.",
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.error,
+                  modifier = Modifier.padding(16.dp),
+                )
+              } else if (files.isEmpty()) {
+                Text(
+                  text = "No files found.",
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                  modifier = Modifier.padding(16.dp),
+                )
+              } else {
+                LazyColumn(
+                  modifier = Modifier.fillMaxWidth(),
+                ) {
+                  items(files, key = { it.absolutePath }) { file ->
+                    Row(
+                      modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                          if (file.isDirectory) {
+                            currentPath = file.absolutePath
+                          } else {
+                            showFilePicker = false
+                            playFile(Uri.fromFile(file).toString(), context)
+                          }
+                        }
+                        .padding(vertical = 12.dp),
+                      verticalAlignment = Alignment.CenterVertically,
+                      horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                      Icon(
+                        imageVector = if (file.isDirectory) Icons.Filled.FolderOpen else Icons.AutoMirrored.Filled.InsertDriveFile,
+                        contentDescription = null,
+                        tint = if (file.isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                      )
+                      Text(
+                        text = file.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                      )
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -163,4 +250,15 @@ object HomeScreen : Screen {
     i.setClass(context, PlayerActivity::class.java)
     context.startActivity(i)
   }
+}
+
+private fun listFiles(path: String): List<File> {
+  val dir = File(path)
+  if (!dir.exists() || !dir.isDirectory) return emptyList()
+  return dir.listFiles()
+    ?.sortedWith(
+      compareByDescending<File> { it.isDirectory }
+        .thenBy { it.name.lowercase() },
+    )
+    ?: emptyList()
 }

@@ -1,9 +1,12 @@
 package live.mehiz.mpvkt.ui.player.controls
 
+import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import dev.vivvvek.seeker.Segment
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -55,39 +58,49 @@ fun PlayerSheets(
   onOpenPanel: (Panels) -> Unit,
   onDismissRequest: () -> Unit,
 ) {
+  // State for the basic file picker overlay
+  var showSubtitleFilePicker by remember { mutableStateOf(false) }
+  var showAudioFilePicker by remember { mutableStateOf(false) }
+
   when (sheetShown) {
     Sheets.None -> {}
     Sheets.SubtitleTracks -> {
-      val subtitlesPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
-      ) {
-        if (it == null) return@rememberLauncherForActivityResult
-        onAddSubtitle(it)
-      }
       SubtitlesSheet(
         tracks = subtitles.toImmutableList(),
         onSelect = onSelectSubtitle,
-        onAddSubtitle = { subtitlesPicker.launch(arrayOf("*/*")) },
+        onAddSubtitle = { showSubtitleFilePicker = true },
         onOpenSubtitleSettings = { onOpenPanel(Panels.SubtitleSettings) },
         onOpenSubtitleDelay = { onOpenPanel(Panels.SubtitleDelay) },
         onDismissRequest = onDismissRequest,
       )
+      if (showSubtitleFilePicker) {
+        BasicFilePicker(
+          onFileSelected = { uri ->
+            showSubtitleFilePicker = false
+            onAddSubtitle(uri)
+          },
+          onDismiss = { showSubtitleFilePicker = false },
+        )
+      }
     }
 
     Sheets.AudioTracks -> {
-      val audioPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
-      ) {
-        if (it == null) return@rememberLauncherForActivityResult
-        onAddAudio(it)
-      }
       AudioTracksSheet(
         tracks = audioTracks,
         onSelect = onSelectAudio,
-        onAddAudioTrack = { audioPicker.launch(arrayOf("*/*")) },
+        onAddAudioTrack = { showAudioFilePicker = true },
         onOpenDelayPanel = { onOpenPanel(Panels.AudioDelay) },
         onDismissRequest,
       )
+      if (showAudioFilePicker) {
+        BasicFilePicker(
+          onFileSelected = { uri ->
+            showAudioFilePicker = false
+            onAddAudio(uri)
+          },
+          onDismiss = { showAudioFilePicker = false },
+        )
+      }
     }
 
     Sheets.Chapters -> {

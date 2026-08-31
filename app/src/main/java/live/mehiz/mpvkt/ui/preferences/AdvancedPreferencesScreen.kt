@@ -51,6 +51,7 @@ import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.presentation.components.ConfirmDialog
 import live.mehiz.mpvkt.presentation.crash.CrashActivity
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import live.mehiz.mpvkt.util.ConfigDirs
 import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
@@ -145,7 +146,7 @@ object AdvancedPreferencesScreen : Screen {
             },
             textToValue = {
               preferences.mpvConf.set(it)
-              File(context.filesDir.path, "mpv.conf").writeText(it)
+              File(ConfigDirs.configPath(context), "mpv.conf").writeText(it)
               if (mpvConfStorageLocation.isNotBlank()) {
                 val tree = DocumentFile.fromTreeUri(context, mpvConfStorageLocation.toUri())!!
                 val uri = if (tree.findFile("mpv.conf") == null) {
@@ -194,7 +195,7 @@ object AdvancedPreferencesScreen : Screen {
             },
             textToValue = {
               preferences.inputConf.set(it)
-              File(context.filesDir.path, "input.conf").writeText(it)
+              File(ConfigDirs.configPath(context), "input.conf").writeText(it)
               if (mpvConfStorageLocation.isNotBlank()) {
                 val tree = DocumentFile.fromTreeUri(context, mpvConfStorageLocation.toUri())!!
                 val uri = if (tree.findFile("input.conf") == null) {
@@ -260,7 +261,7 @@ object AdvancedPreferencesScreen : Screen {
           Preference(
             title = { Text(text = stringResource(id = R.string.pref_advanced_clear_mpv_conf_cache)) },
             onClick = {
-              fileManager.deleteContent(fileManager.fromPath(context.filesDir.path))
+              fileManager.deleteContent(fileManager.fromPath(ConfigDirs.configPath(context)))
               Toast.makeText(
                 context,
                 context.getString(R.string.pref_advanced_cleared_mpv_conf_cache),
@@ -271,7 +272,7 @@ object AdvancedPreferencesScreen : Screen {
           Preference(
             title = { Text(text = stringResource(id = R.string.pref_advanced_clear_fonts_cache)) },
             onClick = {
-              fileManager.deleteContent(fileManager.fromPath(context.cacheDir.path + "/fonts"))
+              fileManager.deleteContent(fileManager.fromPath(ConfigDirs.cachePath(context)))
               Toast.makeText(
                 context,
                 context.getString(R.string.pref_advanced_cleared_fonts_cache),

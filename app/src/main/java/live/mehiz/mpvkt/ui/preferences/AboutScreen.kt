@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
@@ -116,6 +118,35 @@ object AboutScreen : Screen {
               )
             },
           )
+          Preference(
+            title = { Text(text = stringResource(id = R.string.pref_about_developer_website)) },
+            onClick = {
+              context.startActivity(
+                Intent(
+                  Intent.ACTION_VIEW,
+                  context.getString(R.string.developer_website_url).toUri(),
+                ),
+              )
+            },
+          )
+        }
+        Column(
+          Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.spacing.medium),
+          horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          Text(
+            text = stringResource(id = R.string.pref_about_developer_credit),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          Text(
+            text = stringResource(id = R.string.pref_about_model_credit),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+          )
         }
         Row(
           Modifier.fillMaxWidth(),
@@ -129,6 +160,18 @@ object AboutScreen : Screen {
             },
           ) {
             Icon(imageVector = SimpleIcons.Github, contentDescription = null)
+          }
+          IconButton(
+            onClick = {
+              context.startActivity(
+                Intent(
+                  Intent.ACTION_VIEW,
+                  context.getString(R.string.developer_website_url).toUri(),
+                ),
+              )
+            },
+          ) {
+            Icon(imageVector = Icons.Filled.Language, contentDescription = null)
           }
         }
       }

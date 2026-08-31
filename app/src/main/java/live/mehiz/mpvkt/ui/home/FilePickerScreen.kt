@@ -3,15 +3,19 @@ package live.mehiz.mpvkt.ui.home
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -36,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -56,6 +61,7 @@ import live.mehiz.mpvkt.ui.player.videoExtensions
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.FilesComparator
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import live.mehiz.mpvkt.util.VideoThumbnailLoader
 import org.koin.compose.koinInject
 import java.lang.Long.signum
 import java.text.StringCharacterIterator
@@ -164,6 +170,7 @@ data class FilePickerScreen(val uri: String) : Screen {
           ),
           items = if (fileManager.isDirectory(file)) fileManager.listFiles(file).size else null,
           onClick = { onNavigate(file) },
+          filePath = file.getFullPath(),
         )
       }
     }
@@ -178,9 +185,12 @@ data class FilePickerScreen(val uri: String) : Screen {
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     items: Int? = null,
+    filePath: String? = null,
   ) {
     var size: String? by remember { mutableStateOf(null) }
     var time: String? by remember { mutableStateOf(null) }
+    var thumbnail by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         lastModified?.let {
@@ -190,6 +200,10 @@ data class FilePickerScreen(val uri: String) : Screen {
       }
       if (isDirectory) return@LaunchedEffect
       length?.let { size = it.asHumanReadableByteCountBin() }
+      // Pre-load video thumbnail for instant display
+      if (filePath != null && VideoThumbnailLoader.isVideoExtension(name.substringAfterLast('.'))) {
+        thumbnail = VideoThumbnailLoader.loadThumbnail(context, filePath)
+      }
     }
     Row(
       modifier = modifier
@@ -200,10 +214,19 @@ data class FilePickerScreen(val uri: String) : Screen {
       horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Icon(
-        imageVector = fileIcon(isDirectory = isDirectory, fileExtension = name.substringAfterLast('.')),
-        contentDescription = null,
-      )
+      if (thumbnail != null) {
+        Image(
+          bitmap = thumbnail!!.asImageBitmap(),
+          contentDescription = null,
+          modifier = Modifier.size(40.dp),
+        )
+      } else {
+        Icon(
+          imageVector = fileIcon(isDirectory = isDirectory, fileExtension = name.substringAfterLast('.')),
+          contentDescription = null,
+          modifier = Modifier.size(40.dp),
+        )
+      }
       Column {
         Text(
           text = name,

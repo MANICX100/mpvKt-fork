@@ -59,6 +59,7 @@ import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.ui.player.controls.PlayerControls
 import live.mehiz.mpvkt.ui.theme.MpvKtTheme
+import live.mehiz.mpvkt.util.ConfigDirs
 import org.koin.android.ext.android.inject
 import java.io.File
 
@@ -249,18 +250,58 @@ class PlayerActivity : AppCompatActivity() {
   }
 
   private fun copyMPVAssets() {
-    Utils.copyAssets(this@PlayerActivity)
-    copyMPVScripts()
-    copyMPVConfigFiles()
+    try {
+      Utils.copyAssets(this@PlayerActivity)
+    } catch (e: Exception) {
+      Log.e(TAG, "Failed to copy MPV assets: ${e.message}")
+    }
+    // Copy assets from app-internal filesDir to the public config directory
+    // so MPV (initialized with the public dir) can find cacert.pem etc.
+    try {
+      val publicConfigDir = ConfigDirs.configDir(this@PlayerActivity)
+      val internalFilesDir = filesDir
+      internalFilesDir.listFiles()?.forEach { file ->
+        val dest = File(publicConfigDir, file.name)
+        dest.parentFile?.mkdirs()
+        if (!dest.exists() || dest.length() != file.length()) {
+          try {
+            file.copyTo(dest, overwrite = true)
+          } catch (e: Exception) {
+            Log.e(TAG, "Failed to copy ${file.name} to config dir: ${e.message}")
+          }
+        }
+      }
+    } catch (e: Exception) {
+      Log.e(TAG, "Failed to copy assets to public config dir: ${e.message}")
+    }
+    try {
+      copyMPVScripts()
+    } catch (e: Exception) {
+      Log.e(TAG, "Failed to copy MPV scripts: ${e.message}")
+    }
+    try {
+      copyMPVConfigFiles()
+    } catch (e: Exception) {
+      Log.e(TAG, "Failed to copy MPV config files: ${e.message}")
+    }
     // fonts can be lazily loaded
     lifecycleScope.launch(Dispatchers.IO) {
-      copyMPVFonts()
+      try {
+        copyMPVFonts()
+      } catch (e: Exception) {
+        Log.e(TAG, "Failed to copy fonts: ${e.message}")
+      }
     }
   }
 
   private fun setupMPV() {
     copyMPVAssets()
-    player.initialize(filesDir.path, cacheDir.path)
+    val configPath = ConfigDirs.configPath(this)
+    val cachePath = ConfigDirs.cachePath(this)
+    player.initialize(configPath, cachePath)
+    // Use public watch_later dir so Syncthing can sync resume positions
+    MPVLib.setOptionString("watch-later-directory", ConfigDirs.watchLaterPath(this))
+    MPVLib.setOptionString("save-watch-later", "yes")
     MPVLib.addObserver(playerObserver)
   }
 
@@ -281,7 +322,7 @@ class PlayerActivity : AppCompatActivity() {
   }
 
   private fun copyMPVConfigFiles() {
-    val applicationPath = filesDir.path
+    val applicationPath = ConfigDirs.configPath(this)
     try {
       val mpvConf = fileManager.fromUri(advancedPreferences.mpvConfStorageUri.get().toUri())
         ?: error("User hasn't set any mpvConfig directory")
@@ -300,7 +341,7 @@ class PlayerActivity : AppCompatActivity() {
 
   private fun copyMPVScripts() {
     val mpvktLua = assets.open("mpvkt.lua")
-    val applicationPath = filesDir.path
+    val applicationPath = ConfigDirs.configPath(this)
 
     val scriptsDir = fileManager.createDir(fileManager.fromPath(applicationPath), "scripts")!!
 
@@ -312,7 +353,7 @@ class PlayerActivity : AppCompatActivity() {
   }
 
   fun setupCustomButtons(buttons: List<CustomButtonEntity>) {
-    val applicationPath = filesDir.path
+    val applicationPath = ConfigDirs.configPath(this)
 
     val scriptsDir = fileManager.createDir(fileManager.fromPath(applicationPath), "scripts")!!
 
@@ -344,17 +385,17 @@ class PlayerActivity : AppCompatActivity() {
 
   private fun copyMPVFonts() {
     try {
-      val cachePath = cacheDir.path
+      val cachePath = ConfigDirs.cachePath(this)
       val fontsDir = fileManager.fromUri(subtitlesPreferences.fontsFolder.get().toUri())
         ?: error("User hasn't set any fonts directory")
       if (!fileManager.exists(fontsDir)) error("Couldn't access fonts directory")
 
-      val destDir = fileManager.fromPath("$cachePath/fonts")
+      val destDir = fileManager.fromPath("$cachePath")
       if (!fileManager.exists(destDir)) fileManager.createDir(fileManager.fromPath(cachePath), "fonts")
 
       if (fileManager.findFile(destDir, "subfont.ttf") == null) {
         resources.assets.open("subfont.ttf")
-          .copyTo(File("$cachePath/fonts/subfont.ttf").outputStream())
+          .copyTo(File("$cachePath/subfont.ttf").outputStream())
       }
 
       fileManager.copyDirectoryWithContent(fontsDir, destDir, false)

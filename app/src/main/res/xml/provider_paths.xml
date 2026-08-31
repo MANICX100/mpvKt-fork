@@ -6,4 +6,10 @@
     <files-path
         name="files_path"
         path="." />
+    <external-files-path
+        name="external_files"
+        path="." />
+    <external-cache-path
+        name="external_cache"
+        path="." />
 </paths>
