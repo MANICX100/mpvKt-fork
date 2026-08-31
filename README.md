@@ -8,7 +8,7 @@ This is a fork of [abdallahmehiz/mpvKt](https://github.com/abdallahmehiz/mpvKt) 
 
 - Fixed subtitle picker UI bugs
 - A more modern design language
-- All config and `watch_later` files written to a publicly accessible SD location for cross-platform sync via [syncthing-fork](https://github.com/syncthing/syncthing-android)
+- All config and `watch_later` files written to a publicly accessible SD location for cross-platform sync via [syncthing-fork](https://github.com/researchxxl/syncthing-android)
 - Simple file picker for subtitles (no Google file picker, no file type filtering)
 
 ## Building
@@ -35,3 +35,7 @@ This is my little experiment with frontier Chinese AI models from Tencent.
 
 - [abdallahmehiz/mpvKt](https://github.com/abdallahmehiz/mpvKt) for the original work
 - [mpv-android](https://github.com/mpv-android) for the base mpv library
+
+## Donations
+
+[![](https://github.com/aha999/DonateButtons/raw/master/paypal-donate-icon-7.png)](https://paypal.me/dkendall529?country.x=GB&locale.x=en_GB)
