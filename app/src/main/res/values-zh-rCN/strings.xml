@@ -60,8 +60,6 @@
     <string name="pref_decoder">解码器</string>
     <string name="pref_decoder_summary">硬件解码，像素格式，去色带</string>
     <string name="pref_decoder_try_hw_dec_title">尝试硬件解码</string>
-    <string name="pref_decoder_gpu_next_title">使用 gpu-next</string>
-    <string name="pref_decoder_gpu_next_summary">新的视频渲染后端</string>
     <string name="pref_decoder_debanding_title">去色带</string>
     <string name="pref_decoder_yuv420p_title">使用 YUV420P 像素格式</string>
     <string name="pref_decoder_yuv420p_summary">可能解决某些视频编码的黑屏问题，同时可能在降低质量的情况下提升性能</string>

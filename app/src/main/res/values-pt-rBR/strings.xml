@@ -69,8 +69,6 @@
     <string name="pref_decoder">Decodificador</string>
     <string name="pref_decoder_summary">Decodificação por hardware, formato de pixel, remoção de artefatos</string>
     <string name="pref_decoder_try_hw_dec_title">Tentar decodificação por hardware</string>
-    <string name="pref_decoder_gpu_next_title">Usar gpu-next</string>
-    <string name="pref_decoder_gpu_next_summary">Um novo backend de renderização.</string>
     <string name="pref_decoder_debanding_title">Remoção de artefatos</string>
     <string name="pref_decoder_yuv420p_title">Usar formato de pixel YUV420P</string>
     <string name="pref_decoder_yuv420p_summary">Pode corrigir telas pretas em alguns codecs de vídeo; também pode melhorar o desempenho à custa da qualidade.</string>

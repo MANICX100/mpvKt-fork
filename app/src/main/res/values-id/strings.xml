@@ -92,8 +92,6 @@
     <string name="pref_decoder">Decoder</string>
     <string name="pref_decoder_summary">Decoding hardware, format piksel, debanding.</string>
     <string name="pref_decoder_try_hw_dec_title">Coba decoding hardware</string>
-    <string name="pref_decoder_gpu_next_title">Gunakan gpu-next</string>
-    <string name="pref_decoder_gpu_next_summary">Backend rendering baru.</string>
     <string name="pref_decoder_debanding_title">Debanding</string>
     <string name="pref_decoder_yuv420p_title">Gunakan format piksel YUV420P</string>
     <string name="pref_decoder_yuv420p_summary">Bisa memperbaiki layar hitam di beberapa video, juga bisa meningkatkan performa tapi kualitas sedikit berkurang.</string>

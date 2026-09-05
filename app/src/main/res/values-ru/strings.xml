@@ -89,8 +89,6 @@
     <string name="pref_decoder">Декодер</string>
     <string name="pref_decoder_summary">Аппаратное декодирование, формат пикселя, дебандинг</string>
     <string name="pref_decoder_try_hw_dec_title">Пробывать аппаратное декодирование</string>
-    <string name="pref_decoder_gpu_next_title">Использовать gpu-next</string>
-    <string name="pref_decoder_gpu_next_summary">Новый движок рендеринга</string>
     <string name="pref_decoder_debanding_title">Дебандинг</string>
     <string name="pref_decoder_yuv420p_title">Использовать YUV420P формат пикселя</string>
     <string name="pref_decoder_yuv420p_summary">Может исправить чёрные экраны на некоторых видеокодеках, а также повысить производительность за счёт снижения качества</string>

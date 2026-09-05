@@ -92,8 +92,6 @@
     <string name="pref_decoder">Decoder</string>
     <string name="pref_decoder_summary">Hardware decoding, pixel format, debanding</string>
     <string name="pref_decoder_try_hw_dec_title">Try hardware decoding</string>
-    <string name="pref_decoder_gpu_next_title">Use gpu-next</string>
-    <string name="pref_decoder_gpu_next_summary">A new rendering backend</string>
     <string name="pref_decoder_debanding_title">Debanding</string>
     <string name="pref_decoder_yuv420p_title">Use YUV420P pixel format</string>
     <string name="pref_decoder_yuv420p_summary">May fix black screens on some video codecs, can also improve performance at the cost of quality</string>

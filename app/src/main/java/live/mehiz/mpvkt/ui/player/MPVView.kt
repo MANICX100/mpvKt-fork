@@ -57,7 +57,10 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
   var aid: Int by TrackDelegate("aid")
 
   override fun initOptions() {
-    setVo(if (decoderPreferences.gpuNext.get()) "gpu-next" else "gpu")
+    // Always use `gpu`: `gpu-next` leaks GPU memory on Android's OpenGL path until
+    // GL_OUT_OF_MEMORY turns the video solid purple after ~15 minutes of playback.
+    // See https://github.com/mpv-player/mpv/issues/12708
+    setVo("gpu")
     MPVLib.setOptionString("profile", "fast")
     MPVLib.setOptionString("hwdec", if (decoderPreferences.tryHWDecoding.get()) "auto" else "no")
 

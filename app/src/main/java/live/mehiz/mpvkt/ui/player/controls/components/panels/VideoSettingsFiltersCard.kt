@@ -80,13 +80,11 @@ fun VideoSettingsFiltersCard(
           )
         }
 
-        if (!decoderPreferences.gpuNext.get()) {
-          FooterPreference(
-            summary = {
-              Text(text = stringResource(id = R.string.player_sheets_filters_warning))
-            },
-          )
-        }
+        FooterPreference(
+          summary = {
+            Text(text = stringResource(id = R.string.player_sheets_filters_warning))
+          },
+        )
       }
     }
   }

@@ -65,15 +65,6 @@ object DecoderPreferencesScreen : Screen {
             },
             title = { Text(stringResource(R.string.pref_decoder_try_hw_dec_title)) },
           )
-          val gpuNext by preferences.gpuNext.collectAsState()
-          SwitchPreference(
-            value = gpuNext,
-            onValueChange = {
-              preferences.gpuNext.set(it)
-            },
-            title = { Text(stringResource(R.string.pref_decoder_gpu_next_title)) },
-            summary = { Text(stringResource(R.string.pref_decoder_gpu_next_summary)) },
-          )
           val debanding by preferences.debanding.collectAsState()
           ListPreference(
             value = debanding,

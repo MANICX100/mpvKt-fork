@@ -92,8 +92,6 @@
     <string name="pref_decoder">デコーダ</string>
     <string name="pref_decoder_summary">ハードウェアデコード、ピクセルフォーマット、デバンディング</string>
     <string name="pref_decoder_try_hw_dec_title">ハードウェアデコードを試す</string>
-    <string name="pref_decoder_gpu_next_title">GPU-NEXT を使用する</string>
-    <string name="pref_decoder_gpu_next_summary">新しいレンダリングバックエンド</string>
     <string name="pref_decoder_debanding_title">デバンディング</string>
     <string name="pref_decoder_yuv420p_title">YUV420P ピクセルフォーマットを使用する</string>
     <string name="pref_decoder_yuv420p_summary">一部のビデオコーデックで発生する黒画面を修正できる可能性があり、品質を犠牲にしてパフォーマンスを向上させることもできます</string>
